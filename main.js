@@ -1,271 +1,150 @@
-const Town = document.getElementById("Town")
-const formSumbit = document.getElementById('formSumbit')
-
-const body = document.getElementById('body')
-
-const tabNow = document.getElementById('tabNow')
-const tabDetalis = document.getElementById('tabDetalis')
-const tabForecast = document.getElementById('tabForecast')
-
-window.addEventListener('unhandledrejection', function(event) {
-	alert(event.promise);
-	alert(event.reason); 
-  });
-
-let list = [];
-
-formSumbit.addEventListener("submit", addTown)
-
-async function addTown(event) {
-	try {
-		event.preventDefault();
-
-		let cityName = Town.value;
-
-		const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
-		const serverUrl = '//api.openweathermap.org/data/2.5/weather';
-		const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
-
-		let responce = await fetch(url);
-		let json = await responce.json();
-		console.log(json)
-		
-		let temperature = (json.main.temp)
-		temperature = Math.round(temperature)
-		console.log(temperature)
-
-		let feels_like = (json.main.feels_like)
-		feels_like = Math.round(feels_like)
-
-		let Weather_status = (json.weather[0].main)
-
-		const icon = (json.weather[0].icon) 
-
-		renderNow(temperature, cityName, icon)
-		renderDetalis (temperature, cityName, feels_like, Weather_status)
-		formSumbit.reset()
-
-	} catch(error) {
-		alert(error)
-	}
+const Town = document.getElementById("Town"),
+  formSumbit = document.getElementById("formSumbit"),
+  body = document.getElementById("body"),
+  tabNow = document.getElementById("tabNow"),
+  tabDetalis = document.getElementById("tabDetalis"),
+  tabForecast = document.getElementById("tabForecast")
+window.addEventListener("unhandledrejection", function (e) {
+  alert(e.promise), alert(e.reason)
+})
+let list = []
+async function addTown(e) {
+  try {
+    e.preventDefault()
+    let t = Town.value
+    const n = `${"//api.openweathermap.org/data/2.5/weather"}?q=${t}&appid=${"f660a2fb1e4bad108d6160b7f58c555f"}&units=metric`
+    let a = await fetch(n),
+      o = await a.json()
+    console.log(o)
+    let l = o.main.temp
+    ;(l = Math.round(l)), console.log(l)
+    let i = o.main.feels_like
+    i = Math.round(i)
+    let d = o.weather[0].main
+    renderNow(l, t, o.weather[0].icon),
+      renderDetalis(l, t, i, d),
+      formSumbit.reset()
+  } catch (e) {
+    alert(e)
+  }
 }
-
-function renderNow(temperature, cityName, icon) {
-	const temperatureNow = document.getElementById('temperatureNow')
-	const loveButton = document.getElementById('loveButton')
-
-	temperatureNow.textContent = ""
-	
-	let link_img = `//openweathermap.org/img/wn/${icon}@2x.png`
-	
-	// картинка в now
-	let img_weather = document.createElement('img');
-	img_weather.className = "img_cloud";
-	img_weather.src  = link_img;
-	temperatureNow.prepend(img_weather)
-	
-
-	// температура
-	let div_temperature = document.createElement('div')
-	div_temperature.className = "temperature";
-	div_temperature.textContent = `${temperature}°`;
-	temperatureNow.prepend(div_temperature)
-
-	// локация во вкладке now
-	let div_name = document.createElement('div');
-	div_name.className = "section1_text";
-	div_name.id = "cityName"
-	div_name.textContent = cityName;
-	temperatureNow.append(div_name)
-
-	//loveButton
-	loveButton.classList.add('after__render')
-
-	loveButton.addEventListener('click', addLocation)
+function renderNow(e, t, n) {
+  const a = document.getElementById("temperatureNow"),
+    o = document.getElementById("loveButton")
+  a.textContent = ""
+  let l = `//openweathermap.org/img/wn/${n}@2x.png`,
+    i = document.createElement("img")
+  ;(i.className = "img_cloud"), (i.src = l), a.prepend(i)
+  let d = document.createElement("div")
+  ;(d.className = "temperature"), (d.textContent = `${e}°`), a.prepend(d)
+  let c = document.createElement("div")
+  ;(c.className = "section1_text"),
+    (c.id = "cityName"),
+    (c.textContent = t),
+    a.append(c),
+    o.classList.add("after__render"),
+    o.addEventListener("click", addLocation)
 }
-
-function renderDetalis (temperature, cityName, feels_like, Weather_status) {
-	const DetalisTab = document.getElementById('DetalisTab')
-	const data_Wether = document.getElementById('data_Wether')
-	DetalisTab.textContent = ""
-	data_Wether.textContent = ""
-
-	//Имя города
-	let div_name = document.createElement('div');
-	div_name.className = "Actobe_text";
-	div_name.textContent = cityName;
-	DetalisTab.prepend(div_name)
-
-	//Temperature
-	let div_temperature = document.createElement('div')
-	div_temperature.textContent = `Temperature: ${temperature}°`;
-	data_Wether.append(div_temperature)
-
-	//Feels like
-	let div_Feelslike = document.createElement('div')
-	div_Feelslike.textContent = `Feels like: ${feels_like}°`;
-	data_Wether.append(div_Feelslike)
-
-	//Weather 
-	let div_Weather = document.createElement('div')
-	div_Weather.textContent = `Weather: ${Weather_status}`;
-	data_Wether.append(div_Weather)
-
+function renderDetalis(e, t, n, a) {
+  const o = document.getElementById("DetalisTab"),
+    l = document.getElementById("data_Wether")
+  ;(o.textContent = ""), (l.textContent = "")
+  let i = document.createElement("div")
+  ;(i.className = "Actobe_text"), (i.textContent = t), o.prepend(i)
+  let d = document.createElement("div")
+  ;(d.textContent = `Temperature: ${e}°`), l.append(d)
+  let c = document.createElement("div")
+  ;(c.textContent = `Feels like: ${n}°`), l.append(c)
+  let r = document.createElement("div")
+  ;(r.textContent = `Weather: ${a}`), l.append(r)
 }
-
-function toStorage (list) {
-	let citiesArray = JSON.stringify(list);
-	localStorage.setItem('citiesArray', citiesArray);
+function toStorage(e) {
+  let t = JSON.stringify(e)
+  localStorage.setItem("citiesArray", t)
 }
-
-function lastFavoriteViewed(cityName) {
-	let lastCity = cityName
-    localStorage.setItem('lastCity', lastCity)
+function lastFavoriteViewed(e) {
+  let t = e
+  localStorage.setItem("lastCity", t)
 }
-
-// localStorage.clear()
-
 function addLocation() {
-
-	let cityValue = document.getElementById("cityName")
-	let cityName = cityValue.textContent
-
-	const indexObj = list.findIndex(function(item){
-		return item == cityName;
-	})
-
-	if (indexObj == -1) {
-		
-		if(localStorage.length) {
-			let cityInLs = JSON.parse(localStorage.getItem("citiesArray"));
-			list = cityInLs
-		}
-		
-		list.push(cityName) // (заменить на concat или оператор расширения)
-			
-		toStorage(list)
-		let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
-
-		renderAddedLocation();
-
-	} else {
-		alert("Уже есть такой город")
-	}
+  let e = document.getElementById("cityName").textContent
+  if (
+    -1 ==
+    list.findIndex(function (t) {
+      return t == e
+    })
+  ) {
+    if (localStorage.length) {
+      let e = JSON.parse(localStorage.getItem("citiesArray"))
+      list = e
+    }
+    list.push(e), toStorage(list)
+    JSON.parse(localStorage.getItem("citiesArray"))
+    renderAddedLocation()
+  } else alert("Уже есть такой город")
 }
-
-body.onload = renderAddedLocation()
-
 function renderAddedLocation() {
-	const city = document.getElementById('city')
-	const cityTab2 = document.getElementById('cityTab2')
-	city.textContent = "";
-	cityTab2.textContent = "";
-
-	let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
-	list = listLocal;
-
-	listLocal.forEach(function(item) {
-
-		// добавление в Now 
-		let div_location = document.createElement('div');
-		div_location.textContent = item;
-		div_location.onclick = showNowTab
-		city.append(div_location)
-		// cityTab2.append(div_location)
-
-		let cross = document.createElement('input');
-		cross.value = '☒';
-		cross.type = 'submit'
-		cross.classList = 'button_close';
-		cross.onclick = deleteTown // переделать AddEventListner 
-		city.append(cross)
-		// cityTab2.append(cross)
-
-		// добавление в Detalis
-		let div_locationTab2 = document.createElement('div');
-		div_locationTab2.textContent = item;
-		div_locationTab2.onclick = showNowTab
-		cityTab2.append(div_locationTab2)
-
-		let crossTab2 = document.createElement('input');
-		crossTab2.value = '☒';
-		crossTab2.type = 'submit'
-		crossTab2.classList = 'button_close';
-		crossTab2.onclick = deleteTown 
-		cityTab2.append(crossTab2)
-	})
-	showlastCity()
+  const e = document.getElementById("city"),
+    t = document.getElementById("cityTab2")
+  ;(e.textContent = ""), (t.textContent = "")
+  let n = JSON.parse(localStorage.getItem("citiesArray"))
+  ;(list = n),
+    n.forEach(function (n) {
+      let a = document.createElement("div")
+      ;(a.textContent = n), (a.onclick = showNowTab), e.append(a)
+      let o = document.createElement("input")
+      ;(o.value = "☒"),
+        (o.type = "submit"),
+        (o.classList = "button_close"),
+        (o.onclick = deleteTown),
+        e.append(o)
+      let l = document.createElement("div")
+      ;(l.textContent = n), (l.onclick = showNowTab), t.append(l)
+      let i = document.createElement("input")
+      ;(i.value = "☒"),
+        (i.type = "submit"),
+        (i.classList = "button_close"),
+        (i.onclick = deleteTown),
+        t.append(i)
+    }),
+    showlastCity()
 }
-
-function deleteTown(event) {
-	let town = event.target.previousSibling.textContent 
-	town = town.trim()
-
-	const IndexObj = list.findIndex(function(item){
-		return item == town
-	  })
-
-	  list.splice(IndexObj, 1) // сделать фильтр (поиск флуд: как избавится от splice? )
-	  toStorage (list)
-	  
-	  renderAddedLocation()
+function deleteTown(e) {
+  let t = e.target.previousSibling.textContent
+  t = t.trim()
+  const n = list.findIndex(function (e) {
+    return e == t
+  })
+  list.splice(n, 1), toStorage(list), renderAddedLocation()
 }
-
-async function showNowTab(event) {
-	let cityName = event.target.textContent
-
-	const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
-	const serverUrl = '//api.openweathermap.org/data/2.5/weather';
-	const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
-
-	let responce = await fetch(url);
-	let json = await responce.json();
-	
-	let temperature = (json.main.temp)
-	temperature = Math.round(temperature)
-
-	let feels_like = (json.main.feels_like)
-	feels_like = Math.round(feels_like)
-
-	let Weather_status = (json.weather[0].main)	
-	
-	const icon = (json.weather[0].icon) 
-
-	renderNow(temperature, cityName, icon)
-	renderDetalis (temperature, cityName, feels_like, Weather_status)
-	lastFavoriteViewed(cityName)
-
-	// меняю цвет города по которому кликнул
-	event.target.classList = "showTown"
-	setTimeout(() => event.target.className = "delete__class", 350)
+async function showNowTab(e) {
+  let t = e.target.textContent
+  const n = `//api.openweathermap.org/data/2.5/weather?q=${t}&appid=f660a2fb1e4bad108d6160b7f58c555f&units=metric`
+  let a = await fetch(n),
+    o = await a.json(),
+    l = o.main.temp
+  l = Math.round(l)
+  let i = o.main.feels_like
+  i = Math.round(i)
+  let d = o.weather[0].main
+  renderNow(l, t, o.weather[0].icon),
+    renderDetalis(l, t, i, d),
+    lastFavoriteViewed(t),
+    (e.target.classList = "showTown"),
+    setTimeout(() => (e.target.className = "delete__class"), 350)
 }
-
 async function showlastCity() {
-	let cityName = localStorage.getItem('lastCity')
-
-	const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
-	const serverUrl = '//api.openweathermap.org/data/2.5/weather';
-	const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
-
-	let responce = await fetch(url);
-	let json = await responce.json();
-	
-	let temperature = (json.main.temp)
-	temperature = Math.round(temperature)
-
-	let feels_like = (json.main.feels_like)
-	feels_like = Math.round(feels_like)
-
-	let Weather_status = (json.weather[0].main)	
-	
-	const icon = (json.weather[0].icon) 
-
-	renderNow(temperature, cityName, icon)
-	renderDetalis (temperature, cityName, feels_like, Weather_status)
+  let e = localStorage.getItem("lastCity")
+  const t = `//api.openweathermap.org/data/2.5/weather?q=${e}&appid=f660a2fb1e4bad108d6160b7f58c555f&units=metric`
+  let n = await fetch(t),
+    a = await n.json(),
+    o = a.main.temp
+  o = Math.round(o)
+  let l = a.main.feels_like
+  l = Math.round(l)
+  let i = a.weather[0].main
+  renderNow(o, e, a.weather[0].icon), renderDetalis(o, e, l, i)
 }
+formSumbit.addEventListener("submit", addTown),
+  (body.onload = renderAddedLocation())
 
-function changeStyleTab() {
-	
-}
-
-// localStorage.clear()
