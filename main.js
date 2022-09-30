@@ -8,8 +8,8 @@ const tabDetalis = document.getElementById('tabDetalis')
 const tabForecast = document.getElementById('tabForecast')
 
 window.addEventListener('unhandledrejection', function(event) {
-	alert(event.promise);
-	alert(event.reason); 
+	console.log(event.promise);
+	console.log(event.reason); 
   });
 
 let list = [];
@@ -18,6 +18,7 @@ formSumbit.addEventListener("submit", addTown)
 
 async function addTown(event) {
 	try {
+
 		event.preventDefault();
 
 		let cityName = Town.value;
@@ -28,11 +29,10 @@ async function addTown(event) {
 
 		let responce = await fetch(url);
 		let json = await responce.json();
-		console.log(json)
 		
 		let temperature = (json.main.temp)
 		temperature = Math.round(temperature)
-		console.log(temperature)
+
 
 		let feels_like = (json.main.feels_like)
 		feels_like = Math.round(feels_like)
@@ -126,12 +126,18 @@ function lastFavoriteViewed(cityName) {
 // localStorage.clear()
 
 function addLocation() {
-try {
-  let cityValue = document.getElementById("cityName");
-	let cityName = cityValue.textContent;
-  let indexObj;
-	  indexObj = list.findIndex(function(item){
-		return item == cityName;
+
+	let cityValue = document.getElementById("cityName")
+	let cityName = cityValue.textContent
+
+	if(!list) {
+		list = ["Варшава"]
+	}
+	console.log(`list: ${list}`)
+	 
+
+	const indexObj = list.findIndex(function(item){
+		return item == cityName
 	})
 
 	if (indexObj == -1) {
@@ -151,13 +157,9 @@ try {
 	} else {
 		alert("Уже есть такой город")
 	}
-} catch (err){
-  console.log(`err ${err}`)
-}
-	
 }
 
-// body.onload = renderAddedLocation()
+body.onload = renderAddedLocation()
 
 function renderAddedLocation() {
 	const city = document.getElementById('city')
@@ -167,6 +169,14 @@ function renderAddedLocation() {
 
 	let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
 	list = listLocal;
+
+	if(!listLocal){
+		listLocal = ["Варшава"]
+	}
+
+	
+
+	console.log(`listLocal: ${listLocal}`)
 
 	listLocal.forEach(function(item) {
 
@@ -246,6 +256,10 @@ async function showNowTab(event) {
 
 async function showlastCity() {
 	let cityName = localStorage.getItem('lastCity')
+	
+	if(!cityName) {
+		cityName = 'Варшава'
+	}
 
 	const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
 	const serverUrl = '//api.openweathermap.org/data/2.5/weather';
@@ -253,7 +267,7 @@ async function showlastCity() {
 
 	let responce = await fetch(url);
 	let json = await responce.json();
-	
+
 	let temperature = (json.main.temp)
 	temperature = Math.round(temperature)
 
@@ -267,3 +281,4 @@ async function showlastCity() {
 	renderNow(temperature, cityName, icon)
 	renderDetalis (temperature, cityName, feels_like, Weather_status)
 }
+
