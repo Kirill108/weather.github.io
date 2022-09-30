@@ -3,6 +3,10 @@ const formSumbit = document.getElementById('formSumbit')
 
 const body = document.getElementById('body')
 
+const tabNow = document.getElementById('tabNow')
+const tabDetalis = document.getElementById('tabDetalis')
+const tabForecast = document.getElementById('tabForecast')
+
 window.addEventListener('unhandledrejection', function(event) {
 	alert(event.promise);
 	alert(event.reason); 
@@ -258,6 +262,10 @@ async function showlastCity() {
 
 	renderNow(temperature, cityName, icon)
 	renderDetalis (temperature, cityName, feels_like, Weather_status)
+}
+
+function changeStyleTab() {
+	
 }
 
 // localStorage.clear()
