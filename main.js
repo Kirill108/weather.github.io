@@ -126,11 +126,11 @@ function lastFavoriteViewed(cityName) {
 // localStorage.clear()
 
 function addLocation() {
-
-	let cityValue = document.getElementById("cityName");
+try {
+  let cityValue = document.getElementById("cityName");
 	let cityName = cityValue.textContent;
-
-	const indexObj = list.findIndex(function(item){
+  let indexObj;
+	  indexObj = list.findIndex(function(item){
 		return item == cityName;
 	})
 
@@ -151,9 +151,13 @@ function addLocation() {
 	} else {
 		alert("Уже есть такой город")
 	}
+} catch (err){
+  console.log(`err ${err}`)
+}
+	
 }
 
-body.onload = renderAddedLocation()
+// body.onload = renderAddedLocation()
 
 function renderAddedLocation() {
 	const city = document.getElementById('city')
