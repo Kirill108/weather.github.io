@@ -2,7 +2,7 @@ const Town = document.getElementById("Town")
 const formSumbit = document.getElementById('formSumbit')
 
 const body = document.getElementById('body')
-
+// 
 const tabNow = document.getElementById('tabNow')
 const tabDetalis = document.getElementById('tabDetalis')
 const tabForecast = document.getElementById('tabForecast')
@@ -16,12 +16,14 @@ let list = [];
 
 formSumbit.addEventListener("submit", addTown)
 
-async function addTown(event) {
-	try {
+async function getItem() {
 
-		event.preventDefault();
+	let cityName = Town.value;
+	if(!cityName) {
+		cityName = localStorage.getItem('lastCity')
+	}
 
-		let cityName = Town.value;
+	cityName = cityName.trim()
 
 		const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
 		const serverUrl = '//api.openweathermap.org/data/2.5/weather';
@@ -33,21 +35,29 @@ async function addTown(event) {
 		let temperature = (json.main.temp)
 		temperature = Math.round(temperature)
 
-
 		let feels_like = (json.main.feels_like)
 		feels_like = Math.round(feels_like)
 
 		let Weather_status = (json.weather[0].main)
 
+		let Sunrise = (json.sys.sunrise)
+		Sunrise = new Date(Sunrise * 1000);
+		Sunrise = Sunrise.toLocaleTimeString()
+
+		let Sunset = (json.sys.sunset)
+		Sunset = new Date(Sunset * 1000);
+		Sunset = Sunset.toLocaleTimeString()
+
 		const icon = (json.weather[0].icon) 
 
 		renderNow(temperature, cityName, icon)
-		renderDetalis (temperature, cityName, feels_like, Weather_status)
+		renderDetalis (temperature, cityName, feels_like, Weather_status, Sunrise, Sunset)
 		formSumbit.reset()
+}
 
-	} catch(error) {
-		alert(error)
-	}
+async function addTown(event) {
+		event.preventDefault();
+		getItem()
 }
 
 function renderNow(temperature, cityName, icon) {
@@ -84,7 +94,7 @@ function renderNow(temperature, cityName, icon) {
 	loveButton.addEventListener('click', addLocation)
 }
 
-function renderDetalis (temperature, cityName, feels_like, Weather_status) {
+function renderDetalis (temperature, cityName, feels_like, Weather_status, Sunrise, Sunset) {
 	const DetalisTab = document.getElementById('DetalisTab')
 	const data_Wether = document.getElementById('data_Wether')
 	DetalisTab.textContent = ""
@@ -111,6 +121,17 @@ function renderDetalis (temperature, cityName, feels_like, Weather_status) {
 	div_Weather.textContent = `Weather: ${Weather_status}`;
 	data_Wether.append(div_Weather)
 
+	//Sunrise
+	let div_Sunrise = document.createElement('div')
+	div_Sunrise.textContent = `Sunrise: ${Sunrise}`;
+	data_Wether.append(div_Sunrise)
+
+
+	//Sunset
+	let div_Sunset = document.createElement('div')
+	div_Sunset.textContent = `Sunset: ${Sunset}`;
+	data_Wether.append(div_Sunset)
+
 }
 
 function toStorage (list) {
@@ -129,11 +150,13 @@ function addLocation() {
 
 	let cityValue = document.getElementById("cityName")
 	let cityName = cityValue.textContent
+	
 
 	if(!list) {
 		list = ["Варшава"]
 	}
 	console.log(`list: ${list}`)
+	lastFavoriteViewed(cityName)
 	 
 
 	const indexObj = list.findIndex(function(item){
@@ -173,8 +196,6 @@ function renderAddedLocation() {
 	if(!listLocal){
 		listLocal = ["Варшава"]
 	}
-
-	
 
 	console.log(`listLocal: ${listLocal}`)
 
@@ -228,26 +249,8 @@ function deleteTown(event) {
 async function showNowTab(event) {
 	let cityName = event.target.textContent
 
-	const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
-	const serverUrl = '//api.openweathermap.org/data/2.5/weather';
-	const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
-
-	let responce = await fetch(url);
-	let json = await responce.json();
-	
-	let temperature = (json.main.temp)
-	temperature = Math.round(temperature)
-
-	let feels_like = (json.main.feels_like)
-	feels_like = Math.round(feels_like)
-
-	let Weather_status = (json.weather[0].main)	
-	
-	const icon = (json.weather[0].icon) 
-
-	renderNow(temperature, cityName, icon)
-	renderDetalis (temperature, cityName, feels_like, Weather_status)
 	lastFavoriteViewed(cityName)
+	getItem()
 
 	// меняю цвет города по которому кликнул
 	event.target.classList = "showTown"
@@ -261,24 +264,5 @@ async function showlastCity() {
 		cityName = 'Варшава'
 	}
 
-	const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f';
-	const serverUrl = '//api.openweathermap.org/data/2.5/weather';
-	const url = `${serverUrl}?q=${cityName}&appid=${apiKey}&units=metric`;
-
-	let responce = await fetch(url);
-	let json = await responce.json();
-
-	let temperature = (json.main.temp)
-	temperature = Math.round(temperature)
-
-	let feels_like = (json.main.feels_like)
-	feels_like = Math.round(feels_like)
-
-	let Weather_status = (json.weather[0].main)	
-	
-	const icon = (json.weather[0].icon) 
-
-	renderNow(temperature, cityName, icon)
-	renderDetalis (temperature, cityName, feels_like, Weather_status)
+	getItem()
 }
-
