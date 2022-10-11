@@ -1,11 +1,4 @@
-const Town = document.getElementById("Town")
-const formSumbit = document.getElementById('formSumbit')
-
-const body = document.getElementById('body')
-// 
-const tabNow = document.getElementById('tabNow')
-const tabDetalis = document.getElementById('tabDetalis')
-const tabForecast = document.getElementById('tabForecast')
+import {ITEMS_TAB, renderNowHTML, renderDetailsHTML, renderAddedLocationHTML} from './view.js';
 
 window.addEventListener('unhandledrejection', function(event) {
 	console.log(event.promise);
@@ -13,12 +6,13 @@ window.addEventListener('unhandledrejection', function(event) {
   });
 
 let list = [];
+let favoriteCities = new Set();
 
-formSumbit.addEventListener("submit", addTown)
+ITEMS_TAB.formSumbitNow.addEventListener("submit", addTown)
+ITEMS_TAB.formSumbitDetalis.addEventListener("submit", addTown)
 
 async function getItem() {
-
-	let cityName = Town.value;
+	let cityName = ITEMS_TAB.Town.value;
 	if(!cityName) {
 		cityName = localStorage.getItem('lastCity')
 	}
@@ -52,7 +46,8 @@ async function getItem() {
 
 		renderNow(temperature, cityName, icon)
 		renderDetalis (temperature, cityName, feels_like, Weather_status, Sunrise, Sunset)
-		formSumbit.reset()
+		ITEMS_TAB.formSumbitNow.reset()
+		ITEMS_TAB.formSumbitDetalis.reset()
 }
 
 async function addTown(event) {
@@ -63,34 +58,12 @@ async function addTown(event) {
 function renderNow(temperature, cityName, icon) {
 	const temperatureNow = document.getElementById('temperatureNow')
 	const loveButton = document.getElementById('loveButton')
-
 	temperatureNow.textContent = ""
 	
-	let link_img = `//openweathermap.org/img/wn/${icon}@2x.png`
-	
-	// картинка в now
-	let img_weather = document.createElement('img');
-	img_weather.className = "img_cloud";
-	img_weather.src  = link_img;
-	temperatureNow.prepend(img_weather)
-	
-
-	// температура
-	let div_temperature = document.createElement('div')
-	div_temperature.className = "temperature";
-	div_temperature.textContent = `${temperature}°`;
-	temperatureNow.prepend(div_temperature)
-
-	// локация во вкладке now
-	let div_name = document.createElement('div');
-	div_name.className = "section1_text";
-	div_name.id = "cityName"
-	div_name.textContent = cityName;
-	temperatureNow.append(div_name)
+	renderNowHTML(temperature, cityName, icon)
 
 	//loveButton
 	loveButton.classList.add('after__render')
-
 	loveButton.addEventListener('click', addLocation)
 }
 
@@ -100,42 +73,12 @@ function renderDetalis (temperature, cityName, feels_like, Weather_status, Sunri
 	DetalisTab.textContent = ""
 	data_Wether.textContent = ""
 
-	//Имя города
-	let div_name = document.createElement('div');
-	div_name.className = "Actobe_text";
-	div_name.textContent = cityName;
-	DetalisTab.prepend(div_name)
-
-	//Temperature
-	let div_temperature = document.createElement('div')
-	div_temperature.textContent = `Temperature: ${temperature}°`;
-	data_Wether.append(div_temperature)
-
-	//Feels like
-	let div_Feelslike = document.createElement('div')
-	div_Feelslike.textContent = `Feels like: ${feels_like}°`;
-	data_Wether.append(div_Feelslike)
-
-	//Weather 
-	let div_Weather = document.createElement('div')
-	div_Weather.textContent = `Weather: ${Weather_status}`;
-	data_Wether.append(div_Weather)
-
-	//Sunrise
-	let div_Sunrise = document.createElement('div')
-	div_Sunrise.textContent = `Sunrise: ${Sunrise}`;
-	data_Wether.append(div_Sunrise)
-
-
-	//Sunset
-	let div_Sunset = document.createElement('div')
-	div_Sunset.textContent = `Sunset: ${Sunset}`;
-	data_Wether.append(div_Sunset)
-
+	renderDetailsHTML(temperature, cityName, feels_like, Weather_status, Sunrise, Sunset)
 }
 
-function toStorage (list) {
-	let citiesArray = JSON.stringify(list);
+function toStorage (favoriteCities) {
+	let favoriteCitiesArr = Array.from(favoriteCities)
+	let citiesArray = JSON.stringify(favoriteCitiesArr);
 	localStorage.setItem('citiesArray', citiesArray);
 }
 
@@ -144,45 +87,31 @@ function lastFavoriteViewed(cityName) {
     localStorage.setItem('lastCity', lastCity)
 }
 
-// localStorage.clear()
-
 function addLocation() {
-
 	let cityValue = document.getElementById("cityName")
 	let cityName = cityValue.textContent
 	
+	// if(!list) {
+	// 	list = ["Варшава"]
+	// }
+	// console.log(`list: ${list}`)
 
-	if(!list) {
-		list = ["Варшава"]
-	}
-	console.log(`list: ${list}`)
 	lastFavoriteViewed(cityName)
-	 
-
-	const indexObj = list.findIndex(function(item){
-		return item == cityName
-	})
-
-	if (indexObj == -1) {
+	console.log('favoriteCities: ', favoriteCities);
+	if(favoriteCities.has(cityName)) {
+		alert('Уже есть такой город')
+	} else {
+		favoriteCities.add(cityName)
+		console.log('favoriteCities: \n', favoriteCities);
 		
-		if(localStorage.length) {
-			let cityInLs = JSON.parse(localStorage.getItem("citiesArray"));
-			list = cityInLs
-		}
-		
-		list.push(cityName) // (заменить на concat или оператор расширения)
-			
-		toStorage(list)
-		let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
+		toStorage(favoriteCities)
 
 		renderAddedLocation();
-
-	} else {
-		alert("Уже есть такой город")
 	}
 }
 
-body.onload = renderAddedLocation()
+//
+document.body.onload = renderAddedLocation()
 
 function renderAddedLocation() {
 	const city = document.getElementById('city')
@@ -190,45 +119,17 @@ function renderAddedLocation() {
 	city.textContent = "";
 	cityTab2.textContent = "";
 
-	let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
-	list = listLocal;
+	// let listLocal = JSON.parse(localStorage.getItem("citiesArray"));
+	favoriteCities = (new Set(JSON.parse(localStorage.getItem("citiesArray"))))
+	// favoriteCities = listLocal;
+	// if(!listLocal){
+	// 	listLocal = ["Варшава"]
+	// }
 
-	if(!listLocal){
-		listLocal = ["Варшава"]
-	}
+	// console.log(`listLocal: ${listLocal}`)
+	console.log('favoriteCities: ', favoriteCities);
 
-	console.log(`listLocal: ${listLocal}`)
-
-	listLocal.forEach(function(item) {
-
-		// добавление в Now 
-		let div_location = document.createElement('div');
-		div_location.textContent = item;
-		div_location.onclick = showNowTab
-		city.append(div_location)
-		// cityTab2.append(div_location)
-
-		let cross = document.createElement('input');
-		cross.value = '☒';
-		cross.type = 'submit'
-		cross.classList = 'button_close';
-		cross.onclick = deleteTown // переделать AddEventListner 
-		city.append(cross)
-		// cityTab2.append(cross)
-
-		// добавление в Detalis
-		let div_locationTab2 = document.createElement('div');
-		div_locationTab2.textContent = item;
-		div_locationTab2.onclick = showNowTab
-		cityTab2.append(div_locationTab2)
-
-		let crossTab2 = document.createElement('input');
-		crossTab2.value = '☒';
-		crossTab2.type = 'submit'
-		crossTab2.classList = 'button_close';
-		crossTab2.onclick = deleteTown 
-		cityTab2.append(crossTab2)
-	})
+	renderAddedLocationHTML(favoriteCities, showNowTab, deleteTown)
 	showlastCity()
 }
 
@@ -236,14 +137,10 @@ function deleteTown(event) {
 	let town = event.target.previousSibling.textContent 
 	town = town.trim()
 
-	const IndexObj = list.findIndex(function(item){
-		return item == town
-	  })
-
-	  list.splice(IndexObj, 1) // сделать фильтр (поиск флуд: как избавится от splice? )
-	  toStorage (list)
+	favoriteCities.delete(town)
+	toStorage (favoriteCities)
 	  
-	  renderAddedLocation()
+	renderAddedLocation()
 }
 
 async function showNowTab(event) {
@@ -266,3 +163,9 @@ async function showlastCity() {
 
 	getItem()
 }
+
+// tabNow.addEventListener('click', TabmenuNow)
+
+// function TabmenuNow() {
+// 	tabNow.classList = "active"
+// }
